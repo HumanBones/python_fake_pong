@@ -15,3 +15,6 @@ class Player:
     def update(self,vx=0,vy=0):
         self.x += vx * self.speed
         self.y += vy * self.speed
+
+    def AI_update(self,y=0):
+        self.y = y

@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 from ball import Ball
 from player import Player
+import pandas as pd
 
 fps = 60 #fps
 
@@ -51,7 +52,19 @@ pygame.display.set_caption("Fake Pong")
 
 background = pygame.Surface(screen_size)
 
+pong = pd.read_csv("game.csv") #read file
+pong = pong.drop_duplicates() #clean it
 
+X = pong.drop(columns=" player.y")
+Y = pong[' player.y']
+
+from sklearn.neighbors import KNeighborsRegressor
+
+clf = KNeighborsRegressor(n_neighbors=3) #nearest neighbors 
+
+clf = clf.fit(X, Y)
+
+df = pd.DataFrame(columns=['x', 'y', 'vx', 'vy'])
 
 def game_loop():
 
@@ -61,11 +74,17 @@ def game_loop():
 
     is_running = True
 
+    #/// Used for data collection///
     #sample = open("game.csv","w")
 
     #print("ball.x, ball.y, ball.vx, ball.vy, player.y", file=sample)
+    #///
 
     while is_running:
+
+        to_predict = df.append({'x': main_ball.x, 'y' : main_ball.y, 'vx' : main_ball.vx, 'vy' : main_ball.vy}, ignore_index=True)
+
+        should_move =  clf.predict(to_predict)[0] #predicting player.y
 
         for event in pygame.event.get():
 
@@ -108,8 +127,9 @@ def game_loop():
         elif main_player.y >= bottom_limit:
             main_player.y = bottom_limit
                 
-        
-        main_player.update(vx,vy)
+        main_player.AI_update(should_move) #comment this if you want to play
+
+        #main_player.update(vx,vy)  #uncomment this if you want to play
 
         #Ball movments
         if main_ball.x + main_ball.size < border_size + offset + 10:
@@ -158,5 +178,7 @@ def draw_player():
 
 def draw_ball():
     new_ball = pygame.draw.circle(background,main_ball.color,(main_ball.x,main_ball.y),main_ball.size)
+
+
 
 game_loop()
