@@ -1,0 +1,1 @@
+Use requirements.txt with pipenv to install the requirements for this projects. I used Python 3.9, if pipenv doesn't work, try just using pip3 to install all the requirements.
